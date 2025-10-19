@@ -1,37 +1,50 @@
--Overview-
+Question 1 — System Design
+Goal
 
-The Flight Price Tracker helps users monitor ticket price fluctuations for specific flight routes and dates.
-You can define:
+To design an automated system that tracks flight ticket prices for different routes, airlines, and flight dates over regular time intervals (e.g., every 7 days or 15 days).
 
-The flight route (e.g. LHE → BKK)
+The system should automatically record ticket prices over time and generate a time-series view of price fluctuations leading up to the flight.
 
-The airline
+System Overview
 
-The departure date
+Input Parameters
 
-The tracking interval (e.g. 7 days or 15 days)
+ Route (e.g., LHE → BKK)
 
-The system periodically collects and stores ticket prices, building a time-series dataset of prices leading up to the flight.
+ Airline (e.g., “Thai Airways”)
 
-⚙️ Features
+ Flight Date (e.g., 2026-01-01)
 
-🛫 Track ticket prices for any route and airline
+ Tracking Interval (e.g., 15 days)
 
-📅 Time-series data tracking (weekly, biweekly, or custom intervals)
+Output Example
 
-💾 MongoDB storage for all flight and price data
+15 Oct 2025 – $670  
+1 Nov 2025 – $678  
+15 Nov 2025 – $712
 
-🔍 Search flights using hybrid search (text + numeric filters)
+System Flow
 
-🧮 Optional hybrid ranking with weighted formula
+User Input – User provides flight details (route, airline, flight date, interval).
 
-🧰 RESTful APIs for easy integration and visualization
+Data Storage – System stores these details in MongoDB.
+
+Scheduler Activation – When tracking start date arrives, a background job runs every X days to fetch the current price (from an API or dummy data).
+
+Price Logging – Each new price is appended to that flight’s record in a prices[] array.
+
+Data Access – User can query the API to see the time-series of prices or analyze trend
 
 
-🧱 Tech Stack
-Component	Technology
-Backend	Node.js + Express
-Database	MongoDB
-Search	MongoDB Atlas Search / Hybrid text search
-API Testing	Postman
-Data	Seeded JSON dataset (flights.json
+Database Schema Design (MongoDB)
+
+| Field            | Type             | Description                             |
+| :--------------- | :--------------- | :-------------------------------------- |
+| `_id`            | ObjectId         | Unique flight record                    |
+| `route`          | String           | e.g., `LHE → BKK`                       |
+| `airline`        | String           | Airline name                            |
+| `flightDate`     | Date             | Actual flight date                      |
+| `trackStartDate` | Date             | When to begin tracking                  |
+| `intervalDays`   | Number           | Interval (in days) between price checks |
+| `prices`         | Array of Objects | Time-series entries `{date, price}`     |
+
