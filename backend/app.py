@@ -16,25 +16,23 @@ from bson import ObjectId
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-# Initialize FastAPI and MongoDB
 app = FastAPI()
 client = MongoClient("mongodb://localhost:27017/")
 db = client["flight_tracker"]
 collection = db["flights"]
 
-# Initialize SentenceTransformer with CPU explicitly
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', device='cpu')
 
-# Scheduler for price updates
+
 scheduler = AsyncIOScheduler()
 
-# Enum for interval types
+
 class IntervalType(str, Enum):
     daily = "daily"
     weekly = "weekly"
     biweekly = "biweekly"
 
-# Pydantic models for input validation
+
 class FlightInput(BaseModel):
     route: str
     flight_date: str
@@ -55,7 +53,6 @@ class FlightResponse(BaseModel):
     interval: str
     threshold_months: int
 
-# Helper functions
 def generate_embedding(text: str) -> list:
     return model.encode([text])[0].tolist()
 
@@ -88,7 +85,7 @@ def generate_price_history(flight_date: str, interval: str, threshold_months: in
         current += timedelta(days=days)
     return prices
 
-# Lifespan handler for scheduler
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler.add_job(update_prices, 'interval', minutes=1)
@@ -102,7 +99,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Root endpoint
+
 @app.get("/")
 async def root():
     return {
@@ -164,12 +161,11 @@ async def root():
         ]
     }
 
-# Favicon endpoint
+
 @app.get("/favicon.ico")
 async def favicon():
     return {"status": "no favicon"}
 
-# Seeding function
 @app.post("/flights/seed")
 async def seed_flights():
     collection.delete_many({})
@@ -202,7 +198,6 @@ async def seed_flights():
         })
     return {"message": f"Seeded {len(sample_flights)} flights into MongoDB"}
 
-# Track prices endpoint
 @app.get("/track-prices", response_model=FlightResponse)
 async def track_prices(route: str, flight_date: str, airline: str, interval: IntervalType = IntervalType.biweekly, threshold_months: int = 6):
     try:
@@ -249,7 +244,7 @@ async def track_prices(route: str, flight_date: str, airline: str, interval: Int
     }
     return flight_response
 
-# Search endpoint
+
 @app.get("/flights/search")
 async def search_flights(query: str):
     """Hybrid search for flights by route, airline, or description."""
@@ -257,7 +252,7 @@ async def search_flights(query: str):
     if not docs:
         return {"results": []}
 
-    # Map country to airport codes
+   
     country_to_airports = {
         "pakistan": ["LHE", "ISB", "KHI", "PEW"],
         "france": ["CDG", "ORY", "NCE"],
@@ -319,23 +314,23 @@ async def search_flights(query: str):
     bm25 = BM25Okapi(tokenized_corpus)
     bm25_scores = bm25.get_scores(tokenized_query)
 
-    # Debug: Log raw scores
+    
     print(f"Query: {query}")
     print(f"Tokenized query: {tokenized_query}")
     for i, doc in enumerate(docs):
         print(f"Flight {doc['route']} ({doc['_id']}): Semantic={semantic_similarities[i]:.4f}, BM25={bm25_scores[i]:.4f}, Match={match_scores[i]:.4f}")
 
-    # Hybrid scoring with match penalty
+  
     alpha = 0.7
     semantic_scaled = semantic_similarities / np.max(semantic_similarities) if np.max(semantic_similarities) > 0 else np.ones_like(semantic_similarities) * 0.5
     bm25_scaled = bm25_scores / np.max(bm25_scores) if np.max(bm25_scores) > 0 else np.ones_like(bm25_scores) * 0.5
     hybrid_scores = (alpha * semantic_scaled + (1 - alpha) * bm25_scaled) * match_scores
 
-    # Get top 5 results
+   
     top_indices = hybrid_scores.argsort()[-5:][::-1]
     results = []
     for idx in top_indices:
-        if hybrid_scores[idx] < 0.15:  # Lower threshold to include valid results
+        if hybrid_scores[idx] < 0.15:  
             continue
         doc = docs[idx]
         doc["_id"] = str(doc["_id"])
@@ -345,11 +340,11 @@ async def search_flights(query: str):
             "hybrid_score": round(float(hybrid_scores[idx]), 4)
         })
 
-    # Debug: Log final scores
+   
     for idx in top_indices:
         print(f"Top result: {docs[idx]['route']} ({docs[idx]['_id']}): Hybrid={hybrid_scores[idx]:.4f}")
     return {"results": results}
-# Flight ID endpoint
+
 @app.get("/flights/{flight_id}", response_model=FlightResponse)
 async def get_flight(flight_id: str):
     try:
@@ -369,7 +364,7 @@ async def list_flights():
         flight.pop("embedding", None)
     return {"flights": flights}
 
-# Scheduler for price updates
+
 async def update_prices():
     flights = collection.find({})
     current_date = datetime.now()
@@ -394,6 +389,5 @@ async def update_prices():
                 )
                 print(f"Updated price for flight {flight['route']} on {flight['flight_date']} with interval {flight['interval']}")
 
-# Run the app
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

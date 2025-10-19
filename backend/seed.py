@@ -3,17 +3,17 @@ from sentence_transformers import SentenceTransformer
 from datetime import datetime, timedelta
 import random
 
-# Initialize MongoDB and SentenceTransformer
+
 client = MongoClient("mongodb://localhost:27017/")
 db = client["flight_tracker"]
 collection = db["flights"]
 model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 
-# Simulate price generation
+
 def simulate_price() -> str:
     return f"{random.randint(500, 1000)}$"
 
-# Generate price history
+
 def generate_price_history(flight_date: str, interval: str, threshold_months: int) -> list:
     flight_date_dt = datetime.fromisoformat(flight_date)
     start_date = flight_date_dt - timedelta(days=threshold_months * 30)
@@ -36,7 +36,7 @@ def generate_price_history(flight_date: str, interval: str, threshold_months: in
         current += timedelta(days=days)
     return prices
 
-# Seed data
+
 def seed_flights():
     collection.delete_many({})
     sample_flights = [
