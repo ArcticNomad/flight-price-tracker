@@ -1,0 +1,20 @@
+_id,route,flight_date,airline,price_date,price,description,interval,threshold_months
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-07-05,683$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-07-20,740$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-08-04,610$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-08-19,662$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-09-03,611$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-09-18,890$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-10-03,879$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610a,LHE→BKK,2026-01-01,Thai Airways,2025-10-18,719$,Flight from LHE→BKK on 2026-01-01 with Thai Airways,biweekly,6
+68f4eed21f68c7a8e7d2610b,SIN→JED,2026-02-15,Singapore Airlines,2025-10-18,784$,Flight from SIN→JED on 2026-02-15 with Singapore Airlines,weekly,4
+68f4eed21f68c7a8e7d2610c,DXB→LHR,2026-03-10,Emirates,2025-09-11,869$,Flight from DXB→LHR on 2026-03-10 with Emirates,biweekly,6
+68f4eed21f68c7a8e7d2610c,DXB→LHR,2026-03-10,Emirates,2025-09-26,907$,Flight from DXB→LHR on 2026-03-10 with Emirates,biweekly,6
+68f4eed21f68c7a8e7d2610c,DXB→LHR,2026-03-10,Emirates,2025-10-11,627$,Flight from DXB→LHR on 2026-03-10 with Emirates,biweekly,6
+68f4eed21f68c7a8e7d2610d,JFK→CDG,2026-04-20,Air France,,,Flight from JFK→CDG on 2026-04-20 with Air France,daily,3
+68f4eed21f68c7a8e7d2610e,SYD→LAX,2026-05-05,Qantas,,,Flight from SYD→LAX on 2026-05-05 with Qantas,weekly,5
+68f4eed21f68c7a8e7d2610f,DEL→SFO,2026-06-12,Air India,,,Flight from DEL→SFO on 2026-06-12 with Air India,biweekly,6
+68f4eed21f68c7a8e7d26110,HKG→NRT,2026-07-01,Cathay Pacific,,,Flight from HKG→NRT on 2026-07-01 with Cathay Pacific,weekly,4
+68f4eed21f68c7a8e7d26111,AMS→KUL,2026-08-15,KLM,,,Flight from AMS→KUL on 2026-08-15 with KLM,biweekly,6
+68f4eed21f68c7a8e7d26112,BKK→CDG,2026-09-20,Lufthansa,,,Flight from BKK→CDG on 2026-09-20 with Lufthansa,daily,3
+68f4eed21f68c7a8e7d26113,MIA→GRU,2026-10-10,American Airlines,,,Flight from MIA→GRU on 2026-10-10 with American Airlines,weekly,5

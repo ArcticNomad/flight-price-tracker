@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Price Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+        
+        .form-section {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .route-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .route-input span {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .results-section {
+            padding: 30px;
+            border-top: 1px solid #e0e0e0;
+            display: none;
+        }
+        
+        .price-chart {
+            margin: 20px 0;
+        }
+        
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .price-item:last-child {
+            border-bottom: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .error {
+            background: #ffeaea;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            color: #27ae60;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✈️ Flight Price Tracker</h1>
+            <p>Track flight prices automatically over time</p>
+        </div>
+        
+        <div class="form-section">
+            <h2 style="margin-bottom: 30px; color: #2c3e50;">Add New Flight Tracking</h2>
+            
+            <div class="form-group">
+                <label for="routeFrom">From (Origin Airport)</label>
+                <input type="text" id="routeFrom" placeholder="e.g., LHE, ISB, KHI" maxlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="routeTo">To (Destination Airport)</label>
+                <input type="text" id="routeTo" placeholder="e.g., BKK, DXB, JED" maxlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label>Route (Auto-generated)</label>
+                <div class="route-input">
+                    <input type="text" id="routeDisplay" readonly style="background: #f8f9fa;">
+                    <span>→</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="airline">Airline</label>
+                <select id="airline">
+                    <option value="">Select Airline</option>
+                    <option value="Thai Airways">Thai Airways</option>
+                    <option value="Emirates">Emirates</option>
+                    <option value="Qatar Airways">Qatar Airways</option>
+                    <option value="Saudi Airlines">Saudi Airlines</option>
+                    <option value="British Airways">British Airways</option>
+                    <option value="Turkish Airlines">Turkish Airlines</option>
+                    <option value="Singapore Airlines">Singapore Airlines</option>
+                    <option value="Malaysia Airlines">Malaysia Airlines</option>
+                    <option value="Etihad">Etihad</option>
+                    <option value="PIA">Pakistan International Airlines</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="flightDate">Flight Date</label>
+                <input type="date" id="flightDate" min="2025-01-01">
+            </div>
+            
+            <div class="form-group">
+                <label for="trackingStart">Start Tracking (Months Before Flight)</label>
+                <select id="trackingStart">
+                    <option value="1">1 Month Before</option>
+                    <option value="3">3 Months Before</option>
+                    <option value="6" selected>6 Months Before</option>
+                    <option value="9">9 Months Before</option>
+                    <option value="12">12 Months Before</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="interval">Tracking Interval</label>
+                <select id="interval">
+                    <option value="15min">Every 15 Minutes</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly" selected>Weekly</option>
+                    <option value="biweekly">Every 2 Weeks</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="addFlightTracking()">Add Flight </button>
+                    <!-- SEARCH SECTION -->
+        <div class="search-section" style="padding: 40px; border-top: 1px solid #e0e0e0; background: #f8f9fa;">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">🔍 Search Existing Flights</h2>
+            
+            <div class="form-group">
+                <input type="text" id="searchQuery" value="LHE → BKK" 
+                       style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px;"
+                       >
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn" onclick="searchFlights()" style="background: #17a2b8; flex: 2;">
+                    🔍 Search Flights
+                </button>
+                <button class="btn" onclick="viewAllFlights()" style="background: #6c757d; flex: 1;">
+                    📋 View All
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="simulatePriceUpdates()" style="background: #28a745; flex: 1;">
+                    🔄 Simulate Prices
+                </button>
+            </div>
+
+            <div id="searchResults" style="margin-top: 20px;"></div>
+            <div id="searchLoading" class="loading" style="display: none;">
+                <p>🔍 Searching flights...</p>
+            </div>
+            <div id="searchError" class="error" style="display: none;"></div>
+        </div>
+            
+            <div class="loading" id="loading">
+                <p>🔄 Setting up flight tracking...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+        </div>
+        
+        <div class="results-section" id="resultsSection">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">Tracking Results</h2>
+            <div style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+
+    <button class="btn" onclick="simulatePriceUpdates()" style="background: #28a745; margin-bottom: 10px;">
+        🔄 Simulate Price Updates for All Flights
+    </button>
+    <button class="btn" onclick="viewAllFlights()" style="background: #17a2b8;">
+        📊 View All Tracked Flights
+    </button>
+</div>
+            <div id="trackingResults"></div>
+        </div>
+    </div>
+
+    <script>
+     async function simulatePriceUpdates() {
+    showSearchLoading(true);
+    hideSearchError();
+    
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/simulate-price-updates', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        // Show success message in search results
+        document.getElementById('searchResults').innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #28a745; background: white; border-radius: 8px;">
+                <h3>✅ ${data.message}</h3>
+                <p>Prices have been updated for all tracked flights</p>
+            </div>
+        `;
+        
+    } catch (error) {
+        showSearchError('Failed to simulate price updates: ' + error.message);
+    } finally {
+        showSearchLoading(false);
+    }
+}
+
+async function viewAllFlights() {
+    showLoading(true);
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/flights');
+        const data = await response.json();
+        
+        document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('trackingResults').innerHTML = `
+            <h3>All Tracked Flights (${data.length})</h3>
+            ${data.map(flight => `
+                <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px;">
+                    <strong>${flight.route}</strong> (${flight.airline})<br>
+                    <small>ID: ${flight.id}</small><br>
+                    Flight Date: ${flight.flight_date}<br>
+                    Prices: ${flight.prices.length} data points<br>
+                    ${flight.prices.length > 0 ? 
+                        `Latest: $${flight.prices[flight.prices.length-1].price}` : 
+                        'No prices yet'}
+                </div>
+            `).join('')}
+        `;
+    } catch (error) {
+        showError('Failed to fetch flights: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+        // Auto-generate route when both airports are entered
+        document.getElementById('routeFrom').addEventListener('input', updateRoute);
+        document.getElementById('routeTo').addEventListener('input', updateRoute);
+        
+        function updateRoute() {
+            const from = document.getElementById('routeFrom').value.toUpperCase();
+            const to = document.getElementById('routeTo').value.toUpperCase();
+            
+            if (from && to) {
+                document.getElementById('routeDisplay').value = `${from} → ${to}`;
+            } else {
+                document.getElementById('routeDisplay').value = '';
+            }
+        }
+        
+        // Set minimum date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('flightDate').min = tomorrow.toISOString().split('T')[0];
+        
+        async function addFlightTracking() {
+            const routeFrom = document.getElementById('routeFrom').value.trim();
+            const routeTo = document.getElementById('routeTo').value.trim();
+            const airline = document.getElementById('airline').value;
+            const flightDate = document.getElementById('flightDate').value;
+            const trackingStart = document.getElementById('trackingStart').value;
+            const interval = document.getElementById('interval').value;
+            
+            // Validation
+            if (!routeFrom || !routeTo) {
+                showError('Please enter both origin and destination airports');
+                return;
+            }
+            
+            if (routeFrom.length !== 3 || routeTo.length !== 3) {
+                showError('Airport codes should be 3 letters (e.g., LHE, BKK, DXB)');
+                return;
+            }
+            
+            if (!airline) {
+                showError('Please select an airline');
+                return;
+            }
+            
+            if (!flightDate) {
+                showError('Please select a flight date');
+                return;
+            }
+            
+            const route = `${routeFrom} → ${routeTo}`;
+            
+            // Show loading
+            showLoading(true);
+            hideError();
+            hideSuccess();
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/flights', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        route: route,
+                        airline: airline,
+                        flight_date: flightDate,
+                        tracking_start_months: parseInt(trackingStart),
+                        interval: interval
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`Flight tracking started successfully! Tracking ID: ${data.tracking_id}`);
+                    showResults(data);
+                    resetForm();
+                } else {
+                    showError(data.detail || 'Failed to start flight tracking');
+                }
+            } catch (error) {
+                showError('Network error: Make sure the server is running on http://localhost:8000');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function showResults(data) {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('trackingResults').innerHTML = `
+                <div class="success">
+                    <h3>✅ Tracking Started Successfully</h3>
+                    <p><strong>Tracking ID:</strong> ${data.tracking_id}</p>
+                    <p><strong>Route:</strong> ${document.getElementById('routeDisplay').value}</p>
+                    <p><strong>Airline:</strong> ${document.getElementById('airline').value}</p>
+                    <p><strong>Flight Date:</strong> ${document.getElementById('flightDate').value}</p>
+                    <p><strong>Tracking Starts:</strong> ${data.tracking_start}</p>
+                    <p><strong>Interval:</strong> ${document.getElementById('interval').value}</p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p>Your flight price tracking has been set up. The system will automatically monitor prices and you can check the price history using the API endpoints.</p>
+                </div>
+            `;
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+        
+        function hideSuccess() {
+            document.getElementById('success').style.display = 'none';
+        }
+        
+        function resetForm() {
+            document.getElementById('routeFrom').value = '';
+            document.getElementById('routeTo').value = '';
+            document.getElementById('routeDisplay').value = '';
+            document.getElementById('airline').value = '';
+            document.getElementById('flightDate').value = '';
+            document.getElementById('trackingStart').value = '6';
+            document.getElementById('interval').value = 'weekly';
+        }
+        
+        // Quick fill examples for testing
+        function fillExample(example) {
+            const examples = {
+                1: { from: 'LHE', to: 'BKK', airline: 'Thai Airways' },
+                2: { from: 'ISB', to: 'DXB', airline: 'Emirates' },
+                3: { from: 'KHI', to: 'JED', airline: 'Saudi Airlines' }
+            };
+            
+            const ex = examples[example];
+            document.getElementById('routeFrom').value = ex.from;
+            document.getElementById('routeTo').value = ex.to;
+            document.getElementById('airline').value = ex.airline;
+            
+            // Set flight date to 6 months from now
+            const futureDate = new Date();
+            futureDate.setMonth(futureDate.getMonth() + 6);
+            document.getElementById('flightDate').value = futureDate.toISOString().split('T')[0];
+            
+            updateRoute();
+        }
+        // Search functions
+async function searchFlights() {
+    const query = document.getElementById('searchQuery').value.trim();
+    
+    if (!query) {
+        showSearchError('Please enter a search term');
+        return;
+    }
+    
+    showSearchLoading(true);
+    hideSearchError();
+    
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            displaySearchResults(data);
+        } else {
+            showSearchError('Search failed: ' + (data.detail || 'Unknown error'));
+        }
+    } catch (error) {
+        showSearchError('Network error: ' + error.message);
+    } finally {
+        showSearchLoading(false);
+    }
+}
+
+function displaySearchResults(data) {
+    const resultsDiv = document.getElementById('searchResults');
+    
+    if (data.results.length === 0) {
+        resultsDiv.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #6c757d; background: white; border-radius: 8px;">
+                <h3>✈️ No flights found</h3>
+                <p>Try searching with different terms like:</p>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>Airport codes: LHE, BKK, DXB</li>
+                    <li>Airline names: Emirates, Thai Airways</li>
+                    <li>Routes: LHE → BKK</li>
+                </ul>
+            </div>
+        `;
+        return;
+    }
+    
+    resultsDiv.innerHTML = `
+        <h3>📊 Found ${data.total_count} flights for "${data.query}"</h3>
+        <div style="margin-top: 15px;">
+            ${data.results.map(flight => `
+                <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0; color: #2c3e50;">${flight.route}</h4>
+                            <p style="margin: 0; color: #6c757d;">${flight.airline} • ${flight.flight_date}</p>
+                            <p style="margin: 10px 0 0 0;">
+                                <strong style="color: #28a745;">Latest: $${flight.latest_price}</strong><br>
+                                <small>${flight.price_history_count} price points recorded</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Search UI helpers
+function showSearchLoading(show) {
+    document.getElementById('searchLoading').style.display = show ? 'block' : 'none';
+}
+
+function showSearchError(message) {
+    const errorDiv = document.getElementById('searchError');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+function hideSearchError() {
+    document.getElementById('searchError').style.display = 'none';
+}
+
+// Update your existing viewAllFlights to show in search section
+async function viewAllFlights() {
+    showSearchLoading(true);
+    hideSearchError();
+    
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/flights');
+        const data = await response.json();
+        
+        const resultsDiv = document.getElementById('searchResults');
+        
+        if (data.length === 0) {
+            resultsDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #6c757d; background: white; border-radius: 8px;">
+                    <h3>📭 No flights being tracked yet</h3>
+                    <p>Add some flights using the form above to start tracking prices!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        resultsDiv.innerHTML = `
+            <h3>📋 All Tracked Flights (${data.length})</h3>
+            <div style="margin-top: 15px;">
+                ${data.map(flight => `
+                    <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; background: white;">
+                        <h4 style="margin: 0 0 5px 0; color: #2c3e50;">${flight.route}</h4>
+                        <p style="margin: 0; color: #6c757d;">${flight.airline} • ${flight.flight_date}</p>
+                        <p style="margin: 10px 0 0 0;">
+                            <strong style="color: #28a745;">
+                                ${flight.prices.length > 0 ? `Latest: $${flight.prices[flight.prices.length-1].price}` : 'No prices yet'}
+                            </strong>
+                            <br>
+                            <small>${flight.prices.length} price points • ID: ${flight.id}</small>
+                        </p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (error) {
+        showSearchError('Failed to fetch flights: ' + error.message);
+    } finally {
+        showSearchLoading(false);
+    }
+}
+        // Add example buttons for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            const formSection = document.querySelector('.form-section');
+            const exampleDiv = document.createElement('div');
+            exampleDiv.style.marginTop = '20px';
+            exampleDiv.style.padding = '15px';
+            exampleDiv.style.background = '#f8f9fa';
+            exampleDiv.style.borderRadius = '8px';
+            exampleDiv.innerHTML = `
+                <p style="margin-bottom: 10px; font-weight: 600;">Quick Test Examples:</p>
+                <button onclick="fillExample(1)" style="margin: 5px; padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">LHE → BKK (Thai)</button>
+                <button onclick="fillExample(2)" style="margin: 5px; padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">ISB → DXB (Emirates)</button>
+                <button onclick="fillExample(3)" style="margin: 5px; padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">KHI → JED (Saudi)</button>
+            `;
+            formSection.appendChild(exampleDiv);
+        });
+    </script>
+</body>
+</html>
