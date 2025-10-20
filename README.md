@@ -49,3 +49,26 @@ Data Access – User can query the API to see the time-series of prices or analy
 | `intervalDays`   | Number           | Interval (in days) between price checks |
 | `prices`         | Array of Objects | Time-series entries `{date, price}`     |
 
+
+Tech Stack:
+
+| Component             | Technology                               |
+| --------------------- | ---------------------------------------- |
+| **Backend Framework** | FastAPI                                  |
+| **Database**          | MongoDB                                  |
+| **Scheduler**         | APScheduler                              |
+| **Semantic Search**   | SentenceTransformer (`all-MiniLM-L6-v2`) |
+| **Keyword Search**    | BM25 (from `rank_bm25`)                  |
+| **Tokenizer**         | NLTK                                     |
+| **Server**            | Uvicorn                                  |
+
+
+Install Dependencies:
+pip install fastapi uvicorn pymongo apscheduler sentence-transformers nltk scikit-learn rank-bm25 numpy
+
+
+----App usage Instruction on the root "/" page when the app is run----
+
+
+
+
