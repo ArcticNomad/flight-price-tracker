@@ -1,15 +1,14 @@
 import csv
 from pymongo import MongoClient
 
-# Connect to MongoDB
+
 client = MongoClient("mongodb://localhost:27017/")
 db = client["flight_tracker"]
 collection = db["flights"]
 
-# Retrieve all flights, excluding embedding
 flights = collection.find({}, {"embedding": 0})
 
-# Prepare CSV file
+
 output_file = "seeded_flights_prices_expanded.csv"
 
 with open(output_file, mode="w", newline="", encoding="utf-8") as file:
@@ -70,5 +69,5 @@ with open(output_file, mode="w", newline="", encoding="utf-8") as file:
                 "threshold_months": threshold
             })
 
-print(f"✅ CSV file '{output_file}' created successfully.")
-print(f"📦 Total flights exported: {collection.count_documents({})}")
+print(f"CSV file '{output_file}' created successfully.")
+print(f" Total flights exported: {collection.count_documents({})}")
